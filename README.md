@@ -6,7 +6,7 @@
 
 ![image](https://user-images.githubusercontent.com/39259/89119488-759f1c00-d4cc-11ea-80ad-8a7792f73000.png)
 
-# Models
+# Models     
 
 ## Employee Model
 ```
