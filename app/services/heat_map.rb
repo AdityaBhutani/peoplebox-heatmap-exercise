@@ -1,4 +1,5 @@
 class HeatMap
+  # Time Based benchmark result = 0.033161
   def self.department_dimension(dimension)
     result = []
     Response.group(:driver_name).count.keys.each do |driver|
@@ -13,6 +14,8 @@ class HeatMap
     result
   end
 
+  # Using ruby Programming
+  # Time Based benchmark result = 0.016641
   def self.department_dimension_2(dimension)
     results = Response.select("responses.driver_name as driver, employees.#{dimension} as dimension, responses.score as score").joins(:employee)
     arr = []
@@ -39,4 +42,34 @@ class HeatMap
     end
     arr
   end
+
+  # Using Optimized single Query
+  # Time Based benchmark result = 0.030309
+  def self.department_dimension_3(dimension)
+    result_query = Response.select("responses.driver_name, employees.#{dimension} as dimension, AVG(responses.score) as avg_score")
+                           .joins(:employee)
+                           .group("responses.driver_name, employees.department")
+                           .order(:driver_name)
+    result = []
+    result_query.each do |data|
+    driver = result.find{|d| d[:driver] == data.driver_name}
+      if driver.nil?
+        driver_hash = { driver: data.driver_name, scores: {} }
+        driver_hash[:scores][data.dimension] = data.avg_score
+        result << driver_hash
+      else
+        driver[:scores][data.dimension] = data.avg_score
+      end
+    end
+    result
+  end
+
+  # Use to benchmark by time on methods
+  # HeatMap.benchmark { HeatMap.department_dimension_3("department") }
+  def self.benchmark
+    start = Time.now
+    yield
+    Time.now - start
+  end
+
 end
